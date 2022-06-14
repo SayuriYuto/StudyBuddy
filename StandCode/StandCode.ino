@@ -5,8 +5,8 @@
 #define WIFI_SSID "ChotaBheem"
 #define WIFI_PASSWORD "kandalassan"
 
-#define API_KEY "AIzaSyDvpW0XKI2CF5fgdeGaltkZ9nOtTtSIHhs"
-#define FIREBASE_PROJECT_ID "studybuddytimer"
+#define API_KEY "AIzaSyD2Wp0dXTHWnKZzlaoXS1r-hwyZVNw9plk"
+#define FIREBASE_PROJECT_ID "studybuddy-28b79"
 #define USER_EMAIL "amey.dhuri21@vit.edu"
 #define USER_PASSWORD "qwerty12345"
 FirebaseData fbdo;
@@ -27,6 +27,7 @@ int count = 0;
 unsigned long sendDataPrevMillis = 0;
 unsigned long lastFBcheck = 0;
 bool timermode = LOW;
+String currentDate;
 
 #define switchPin D5
 int prevState = LOW;
@@ -90,7 +91,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
 
     timeClient.begin();
-    timeClient.setTimeOffset(9000);
+    timeClient.setTimeOffset(19800);
 }
 
 void loop()
@@ -118,6 +119,13 @@ void loop()
             showclock(pp, HIGH);
             
             timeClient.update();
+            time_t epochTime = timeClient.getEpochTime();
+            struct tm *ptm = gmtime ((time_t *)&epochTime);
+            int monthDay = ptm->tm_mday;
+            int currentMonth = ptm->tm_mon+1;
+            int currentYear = ptm->tm_year+1900;
+            currentDate = String(currentYear) + "-" + String(currentMonth) + "-" + String(monthDay);
+            
             char tt[5];
             sprintf(tt, "%02d:%02d", timeClient.getHours(), timeClient.getMinutes());
             studying(HIGH, tt);
@@ -156,6 +164,8 @@ void loop()
         {
             String documentPath = "History/" + String(millis());
             content.set("fields/time/integerValue", String((millis() - sendDataPrevMillis) / 1000));
+            content.set("fields/date/stringValue", String(currentDate));
+
 
             String doc_path = "projects/";
             doc_path += FIREBASE_PROJECT_ID;
